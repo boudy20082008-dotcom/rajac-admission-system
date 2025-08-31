@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useEmailAuth } from "@/hooks/useEmailAuth";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useGetApplications } from "@/hooks/useApi";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import SharedNavigation from "@/components/SharedNavigation";
@@ -11,8 +11,8 @@ import { useTranslation } from "react-i18next";
 const ParentDashboard: React.FC = () => {
   const { userEmail } = useEmailAuth();
   const navigate = useNavigate();
+  const { execute: getApplications, data: applications = [], loading: dataLoading } = useGetApplications();
   const [admissionForm, setAdmissionForm] = useState<any | null>(null);
-  const [dataLoading, setDataLoading] = useState(true);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -26,24 +26,23 @@ const ParentDashboard: React.FC = () => {
       if (!userEmail) return;
       
       try {
-        const { data, error } = await supabase
-          .rpc('get_admission_form_by_email', { p_email: userEmail });
-
-        if (error) {
-          console.error('Error fetching admission form:', error);
-        } else {
-          const record = Array.isArray(data) ? data[0] : data;
-          setAdmissionForm(record);
-        }
+        await getApplications();
       } catch (error) {
         console.error('Error:', error);
-      } finally {
-        setDataLoading(false);
       }
     };
 
     fetchAdmissionForm();
   }, [userEmail]);
+
+  // Set admission form when applications are loaded
+  useEffect(() => {
+    if (applications && applications.length > 0) {
+      // Find the application for the current user
+      const userApplication = applications.find(app => app.parent_email === userEmail);
+      setAdmissionForm(userApplication);
+    }
+  }, [applications, userEmail]);
 
   if (dataLoading) {
     return <div className="flex flex-col items-center justify-center h-screen">Loading...</div>;
@@ -76,11 +75,11 @@ const ParentDashboard: React.FC = () => {
         <div className="text-left font-semibold text-green-700">{t("dashboard.studentInfo")}</div>
         <div className="flex justify-between items-center">
           <span className="font-medium">{t("dashboard.studentName")}:</span>
-          <span>{admissionForm.student_first_name} {admissionForm.student_last_name}</span>
+          <span>{admissionForm.student_name || t("dashboard.notSpecified")}</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="font-medium">{t("dashboard.gradeApplied")}:</span>
-          <span>{admissionForm.grade || t("dashboard.notSpecified")}</span>
+          <span>{admissionForm.grade_level || t("dashboard.notSpecified")}</span>
         </div>
         
         <div className="text-left font-semibold text-green-700 mt-4">{t("dashboard.testInfo")}</div>

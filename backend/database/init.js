@@ -104,34 +104,51 @@ class Database {
     const hashedPassword = await bcrypt.hash(adminPassword, parseInt(process.env.BCRYPT_ROUNDS) || 12);
     
     return new Promise((resolve, reject) => {
-      this.db.get(
-        'SELECT id FROM users WHERE email = ?',
-        [adminEmail],
-        (err, row) => {
-          if (err) {
-            reject(err);
-            return;
+      // In production (serverless), always create the admin user since database resets
+      if (process.env.NODE_ENV === 'production') {
+        this.db.run(
+          'INSERT OR REPLACE INTO users (email, password, role) VALUES (?, ?, ?)',
+          [adminEmail, hashedPassword, 'admin'],
+          (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              console.log('✅ Default admin user created/updated for production');
+              resolve();
+            }
           }
-          
-          if (!row) {
-            this.db.run(
-              'INSERT INTO users (email, password, role) VALUES (?, ?, ?)',
-              [adminEmail, hashedPassword, 'admin'],
-              (err) => {
-                if (err) {
-                  reject(err);
-                } else {
-                  console.log('✅ Default admin user created');
-                  resolve();
+        );
+      } else {
+        // In development, check if user exists first
+        this.db.get(
+          'SELECT id FROM users WHERE email = ?',
+          [adminEmail],
+          (err, row) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            
+            if (!row) {
+              this.db.run(
+                'INSERT INTO users (email, password, role) VALUES (?, ?, ?)',
+                [adminEmail, hashedPassword, 'admin'],
+                (err) => {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    console.log('✅ Default admin user created');
+                    resolve();
+                  }
                 }
-              }
-            );
-          } else {
-            console.log('ℹ️ Admin user already exists');
-            resolve();
+              );
+            } else {
+              console.log('ℹ️ Admin user already exists');
+              resolve();
+            }
           }
-        }
-      );
+        );
+      }
     });
   }
 

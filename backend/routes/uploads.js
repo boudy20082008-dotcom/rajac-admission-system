@@ -24,28 +24,30 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Ensure upload directory exists
+// Ensure upload directory exists (only in development)
 const uploadDir = process.env.UPLOAD_PATH || './uploads';
-if (!fs.existsSync(uploadDir)) {
+if (process.env.NODE_ENV !== 'production' && !fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 // Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Create subdirectory based on file type
-    const subDir = path.join(uploadDir, file.fieldname || 'documents');
-    if (!fs.existsSync(subDir)) {
-      fs.mkdirSync(subDir, { recursive: true });
-    }
-    cb(null, subDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename
-    const uniqueName = `${Date.now()}-${uuidv4()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  }
-});
+const storage = process.env.NODE_ENV === 'production' 
+  ? multer.memoryStorage() // Use memory storage in production (serverless)
+  : multer.diskStorage({
+      destination: (req, file, cb) => {
+        // Create subdirectory based on file type
+        const subDir = path.join(uploadDir, file.fieldname || 'documents');
+        if (!fs.existsSync(subDir)) {
+          fs.mkdirSync(subDir, { recursive: true });
+        }
+        cb(null, subDir);
+      },
+      filename: (req, file, cb) => {
+        // Generate unique filename
+        const uniqueName = `${Date.now()}-${uuidv4()}${path.extname(file.originalname)}`;
+        cb(null, uniqueName);
+      }
+    });
 
 // File filter function
 const fileFilter = (req, file, cb) => {
@@ -90,16 +92,21 @@ router.post('/single', authenticateToken, upload.single('file'), (req, res) => {
     }
 
     const fileInfo = {
-      filename: req.file.filename,
+      filename: req.file.filename || `${Date.now()}-${uuidv4()}${path.extname(req.file.originalname)}`,
       originalName: req.file.originalname,
       mimetype: req.file.mimetype,
       size: req.file.size,
+      buffer: req.file.buffer ? req.file.buffer.toString('base64') : undefined,
       path: req.file.path,
-      url: `/uploads/${req.file.fieldname || 'documents'}/${req.file.filename}`
+      url: process.env.NODE_ENV === 'production' 
+        ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`
+        : `/uploads/${req.file.fieldname || 'documents'}/${req.file.filename}`
     };
 
     res.json({
-      message: 'File uploaded successfully',
+      message: process.env.NODE_ENV === 'production' 
+        ? 'File uploaded successfully (stored in memory - consider using cloud storage for production)'
+        : 'File uploaded successfully',
       file: fileInfo
     });
 

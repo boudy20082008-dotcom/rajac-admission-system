@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useGetAllApplications, useAdminDashboard } from "@/hooks/useApi";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -51,10 +51,12 @@ type AdmissionForm = {
 const AdminDashboard: React.FC = () => {
   const { admin, adminPassword, loading } = useAdminAuth();
   const navigate = useNavigate();
-  const [applications, setApplications] = useState<AdmissionForm[]>([]);
+  const { execute: getApplications, data: applications = [], loading: appsLoading } = useGetAllApplications();
+  const { execute: getDashboard, data: dashboard, loading: dashboardLoading } = useAdminDashboard();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredApplications, setFilteredApplications] = useState<AdmissionForm[]>([]);
+  const [filteredApplications, setFilteredApplications] = useState<any[]>([]);
   const { t } = useTranslation();
+  const loading = appsLoading || dashboardLoading;
 
   useEffect(() => {
     if (!loading && !admin) {
@@ -63,69 +65,19 @@ const AdminDashboard: React.FC = () => {
   }, [admin, loading, navigate]);
 
   const fetchApplications = async () => {
-    console.log('=== DEBUG: Admin fetching applications via RPC ===');
     if (!admin || !adminPassword) {
-      console.warn('Admin credentials not available for RPC');
+      console.warn('Admin credentials not available');
       return;
     }
-    const { data, error } = await supabase.rpc('admin_list_admission_forms', {
-      p_admin_email: admin.email,
-      p_admin_password: adminPassword,
-    });
-
-    console.log('=== DEBUG: Admin RPC fetch result ===');
-    console.log('Data count:', Array.isArray(data) ? data.length : 0);
-    console.log('Error:', error);
-
-    if (data && data.length > 0) {
-      console.log('Sample application data:', {
-        email: data[0].primary_email,
-        test_date: data[0].test_date,
-        test_time: data[0].test_time,
-        status: data[0].status,
-        payment_status: data[0].payment_status
-      });
-    }
-
-    if (error) {
-      console.error("Error fetching applications:", error);
-    } else {
-      const formattedData = data.map(app => ({
-        ...app,
-        dob: app.dob || "",
-        religion: app.religion || "",
-        citizenship: app.citizenship || "",
-        second_lang: app.second_lang || "",
-        address: app.address || "",
-        gender: app.gender || "",
-        school: app.school || "",
-        grade: app.grade || "",
-        prev_school: app.prev_school || "",
-        scholar_notes: app.scholar_notes || "",
-        father_name: app.father_name || "",
-        father_dob: app.father_dob || "",
-        father_phone: app.father_phone || "",
-        father_email: app.father_email || "",
-        father_degree: app.father_degree || "",
-        father_work: app.father_work || "",
-        father_business: app.father_business || "",
-        mother_name: app.mother_name || "",
-        mother_dob: app.mother_dob || "",
-        mother_phone: app.mother_phone || "",
-        mother_email: app.mother_email || "",
-        mother_degree: app.mother_degree || "",
-        mother_work: app.mother_work || "",
-        mother_business: app.mother_business || "",
-        test_date: app.test_date || "",
-        test_time: app.test_time || "",
-        test_result: app.test_result || "",
-        status: app.status || "",
-        admin_notes: app.admin_notes || "",
-        student_name_ar: app.student_name_ar || "",
-      }));
-      console.log('=== DEBUG: Formatted applications count ===', formattedData.length);
-      setApplications(formattedData);
-      setFilteredApplications(formattedData);
+    
+    try {
+      // Fetch both applications and dashboard data
+      await Promise.all([
+        getApplications(1, 100), // Get first 100 applications
+        getDashboard()
+      ]);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -136,14 +88,16 @@ const AdminDashboard: React.FC = () => {
   }, [admin, adminPassword]);
 
   useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredApplications(applications);
-    } else {
-      const filtered = applications.filter(app => 
-        app.father_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        `${app.student_first_name} ${app.student_last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredApplications(filtered);
+    if (applications && applications.length > 0) {
+      if (searchTerm.trim() === "") {
+        setFilteredApplications(applications);
+      } else {
+        const filtered = applications.filter(app => 
+          app.parent_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          app.student_name?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredApplications(filtered);
+      }
     }
   }, [searchTerm, applications]);
 

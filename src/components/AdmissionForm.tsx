@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useSubmitAdmission } from "@/hooks/useApi";
 import { useEmailAuth } from "@/hooks/useEmailAuth";
 
 interface AdmissionFormProps {
@@ -24,7 +24,7 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ afterSubmitRedirect = "/e
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { userEmail } = useEmailAuth();
-  const [submitting, setSubmitting] = React.useState(false);
+  const { execute: submitForm, loading: submitting, error: submitError, data: submitData } = useSubmitAdmission();
   const [error, setError] = React.useState<string | null>(null);
 
   // Check if user has email and pre-fill form
@@ -123,7 +123,6 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ afterSubmitRedirect = "/e
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
     setError(null);
 
     if (!userEmail) {
@@ -132,74 +131,67 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ afterSubmitRedirect = "/e
       return;
     }
 
-    // Check if user already has a form by email
-    const { data: existingForm } = await supabase
-      .from("admission_forms")
-      .select("id")
-      .eq("primary_email", form.primaryEmail)
-      .maybeSingle();
+    try {
+      // Transform form data to match backend schema
+      const admissionData = {
+        application_id: `APP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        student_name: `${form.studentFirstName} ${form.studentLastName}`,
+        student_email: form.studentEmail || form.primaryEmail,
+        student_phone: form.homeNumber,
+        student_dob: form.dob || undefined,
+        student_gender: form.gender,
+        parent_name: `${form.fatherName} / ${form.motherName}`,
+        parent_email: form.primaryEmail,
+        parent_phone: form.fatherPhone || form.motherPhone,
+        address: form.address,
+        city: '', // Add if you have city field
+        country: 'Saudi Arabia',
+        nationality: form.nationality,
+        previous_school: form.prevSchool,
+        grade_level: form.grade,
+        academic_year: new Date().getFullYear().toString(),
+        documents: JSON.stringify({
+          siblings: siblings.filter(s => s.name.trim() !== ""),
+          additional_info: {
+            religion: form.religion,
+            citizenship: form.citizenship,
+            second_lang: form.secondLang,
+            scholar_notes: form.scholarNotes,
+            father_details: {
+              name: form.fatherName,
+              dob: form.fatherDob,
+              education: form.fatherEducation,
+              occupation: form.fatherOccupation,
+              phone: form.fatherPhone,
+              email: form.fatherEmail,
+              mobile: form.fatherMobile,
+              religion: form.fatherReligion,
+              address: form.fatherAddress
+            },
+            mother_details: {
+              name: form.motherName,
+              dob: form.motherDob,
+              education: form.motherEducation,
+              occupation: form.motherOccupation,
+              phone: form.motherPhone,
+              email: form.motherEmail,
+              mobile: form.motherMobile,
+              religion: form.motherReligion,
+              address: form.motherAddress
+            }
+          }
+        })
+      };
 
-    if (existingForm) {
-      setError("You have already submitted an admission form.");
-      setSubmitting(false);
-      return;
+      await submitForm(admissionData);
+
+      if (submitData) {
+        alert(t("form.thankYou"));
+        setTimeout(() => navigate(afterSubmitRedirect, { replace: true }), 1000);
+      }
+    } catch (error: any) {
+      setError(error.message || "Could not submit form. Please try again.");
     }
-
-    const insertRes = await supabase
-      .from("admission_forms")
-      .insert([
-        {
-          primary_email: form.primaryEmail,
-          student_first_name: form.studentFirstName,
-          student_last_name: form.studentLastName,
-          student_full_name: form.studentFullName,
-          student_name_ar: form.studentNameAr,
-          gender: form.gender,
-          student_nationality: form.nationality,
-          citizenship: form.citizenship,
-          religion: form.religion,
-          second_lang: form.secondLang,
-          dob: form.dob || null,
-          parent_passport_id: form.parentPassportId,
-          address: form.address,
-          student_home_number: form.homeNumber,
-          student_email: form.studentEmail,
-          school: form.school,
-          grade: form.grade,
-          prev_school: form.prevSchool,
-          scholar_notes: form.scholarNotes,
-          father_name: form.fatherName,
-          father_dob: form.fatherDob || null,
-          father_phone: form.fatherPhone,
-          father_email: form.fatherEmail,
-          father_education: form.fatherEducation,
-          father_occupation: form.fatherOccupation,
-          father_work_address: form.fatherWorkAddress,
-          father_mobile: form.fatherMobile,
-          father_religion: form.fatherReligion,
-          father_address: form.fatherAddress,
-          mother_name: form.motherName,
-          mother_dob: form.motherDob || null,
-          mother_phone: form.motherPhone,
-          mother_email: form.motherEmail,
-          mother_education: form.motherEducation,
-          mother_occupation: form.motherOccupation,
-          mother_mobile: form.motherMobile,
-          mother_religion: form.motherReligion,
-          mother_address: form.motherAddress,
-          siblings_info: siblings.filter(s => s.name.trim() !== "") as any,
-        }
-      ]);
-
-    if (insertRes.error) {
-      console.error('Form submission error:', insertRes.error);
-      setError("Could not submit form. Please try again.");
-      setSubmitting(false);
-      return;
-    }
-
-    alert(t("form.thankYou"));
-    setTimeout(() => navigate(afterSubmitRedirect, { replace: true }), 1000);
   };
 
   const rtl = i18n.language === "ar";
@@ -216,9 +208,9 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ afterSubmitRedirect = "/e
       <h2 className="text-2xl font-bold text-green-800 mb-2 text-center">
         {t("form.title")}
       </h2>
-      {error && (
+      {(error || submitError) && (
         <div className="text-red-600 bg-red-50 border border-red-200 rounded p-2">
-          {error}
+          {error || submitError}
         </div>
       )}
 
