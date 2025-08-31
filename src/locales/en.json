@@ -1,0 +1,190 @@
+{
+  "welcome": "Welcome to Rajac Language School Admission",
+  "cta": "Apply Now",
+  "instructions": "Fill out the admission form below.",
+  "language": "Language",
+  "qrHint": "Scan to open the admission portal",
+  "home": {
+    "title": "Welcome To Rajac International Schools",
+    "description": "Welcome to our admission portal. Please choose your access level below.",
+    "parentPortal": "Parent Portal",
+    "adminPanel": "Admin Panel"
+  },
+  "outlook": {
+    "title": "Book Your Admission Test Slot",
+    "chooseDate": "Choose Date:",
+    "chooseTime": "Choose Time:",
+    "pickDate": "Pick a date",
+    "confirmSlot": "Confirm Slot",
+    "saving": "Saving...",
+    "selectDate": "Please choose your exam date.",
+    "selectTime": "Please choose your exam time.",
+    "saveError": "Could not save your test slot. Please try again.",
+    "slotBooked": "Exam Slot Chosen",
+    "slotBookedDesc": "You have selected {date} at {time}",
+    "calendarNote": "This test slot will be reflected in your Outlook calendar soon."
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "welcome": "Welcome, {name}",
+    "logout": "Logout",
+    "search": "Search by Father's Name or Student Name...",
+    "refresh": "Refresh",
+    "noApplications": "No applications found."
+  },
+  "auth": {
+    "signup": {
+      "title": "Sign up for Admission Portal",
+      "button": "Sign Up"
+    },
+    "login": {
+      "title": "Login",
+      "button": "Login"
+    },
+    "success": {
+      "title": "Account Created",
+      "message": "Registration successful!",
+      "credentials": "Your Login Details:",
+      "reminder": "Please take a screenshot or photo of this screen.",
+      "note": "You will need these credentials when your son is approved",
+      "proceed": "Proceed to Admission Form"
+    },
+    "fatherName": "Father's Name",
+    "fatherNamePlaceholder": "Enter Father's Name",
+    "email": "Email",
+    "emailPlaceholder": "your@email.com",
+    "password": "Password",
+    "passwordPlaceholder": "Choose a password",
+    "creating": "Creating...",
+    "loggingIn": "Logging in...",
+    "hasAccount": "Already have an account?",
+    "loginLink": "Login",
+    "needSignup": "Need to sign up?",
+    "signupLink": "Sign Up"
+  },
+  "dashboard": {
+    "title": "Parent Dashboard",
+    "studentInfo": "Student Information",
+    "studentName": "Student Name",
+    "gradeApplied": "Grade Applied For",
+    "notSpecified": "Not specified",
+    "testInfo": "Test Information",
+    "examDate": "Exam Date",
+    "examTime": "Exam Time",
+    "notScheduled": "Not scheduled yet",
+    "testResult": "Test Result",
+    "pending": "Pending",
+    "status": "Application Status",
+    "underReview": "Under Review",
+    "adminNotes": "Admin Notes",
+    "passedMessage": "Congratulations! Please bring original documents for verification at the school.",
+    "failedMessage": "We appreciate your interest. Please check admin notes for further information.",
+    "reviewMessage": "Your application is being reviewed. Please check back for updates on your exam schedule and results.",
+    "noForm": "No Admission Form Found",
+    "fillForm": "Fill Admission Form"
+  },
+  "form": {
+    "title": "Admission Form",
+    "submit": "Submit Application",
+    "thankYou": "Thank you! Your application has been received.",
+    "student": {
+      "section": "🧾 Student Personal Information (البيانات الشخصية للطالب)",
+      "fullName": "Student Full Name (اسم الطالب كاملًا)",
+      "fullNamePh": "ex: Ahmed Hassan Mohamed",
+      "gender": "Gender (النوع)",
+      "genderPh": "Male/Female",
+      "nationality": "Nationality (الجنسية)",
+      "nationalityPh": "ex: Egyptian",
+      "dob": "Date of Birth (تاريخ الميلاد)",
+      "parentId": "Parent Passport/ID (جواز سفر ولي الأمر / رقم بطاقة ولي الأمر)",
+      "parentIdPh": "ex: 29012345678901",
+      "address": "Address (العنوان)",
+      "addressPh": "Apartment, Street, Area",
+      "homeNumber": "Home Number (رقم المنزل)",
+      "homeNumberPh": "ex: 0225551234",
+      "email": "Email (البريد الإلكتروني)",
+      "emailPh": "student@email.com"
+    },
+    "scholar": {
+      "section": "Student Scholar Info",
+      "school": "Applying School",
+      "schoolPh": "ex: Rajac EL",
+      "grade": "Grade",
+      "gradePh": "ex: 1st Primary",
+      "prevSchool": "Previous School/Nursery",
+      "prevSchoolPh": "Optional",
+      "notes": "Notes",
+      "notesPh": "Optional"
+    },
+    "father": {
+      "section": "👨‍👩‍👦 Father's Information (بيانات الأب)",
+      "name": "Name (الاسم)",
+      "namePh": "ex: Mohamed Hassan",
+      "dob": "Date of Birth (تاريخ الميلاد)",
+      "education": "Education (التعليم)",
+      "educationPh": "ex: Bachelor's Degree",
+      "occupation": "Occupation (الوظيفة)",
+      "occupationPh": "ex: Engineer",
+      "workAddress": "Work Address (عنوان العمل)",
+      "workAddressPh": "ex: Cairo, Egypt",
+      "mobile": "Mobile Number (رقم الموبايل)",
+      "mobilePh": "ex: 01001234567",
+      "religion": "Religion (الديانة)",
+      "religionPh": "ex: Muslim",
+      "address": "Address (العنوان)",
+      "addressPh": "Residential address"
+    },
+    "mother": {
+      "section": "👩 Mother's Information (بيانات الأم)",
+      "name": "Name (الاسم)",
+      "namePh": "ex: Fatma Ali",
+      "dob": "Date of Birth (تاريخ الميلاد)",
+      "education": "Education (التعليم)",
+      "educationPh": "ex: Bachelor's Degree",
+      "occupation": "Occupation (الوظيفة)",
+      "occupationPh": "ex: Teacher",
+      "mobile": "Mobile Number (رقم الموبايل)",
+      "mobilePh": "ex: 01007654321",
+      "religion": "Religion (الديانة)",
+      "religionPh": "ex: Muslim",
+      "address": "Address (العنوان)",
+      "addressPh": "Residential address"
+    },
+    "siblings": {
+      "section": "🧒 Siblings Information (بيانات الأخوة و الأخوات)",
+      "name": "Name (الاسم)",
+      "namePh": "Sibling name",
+      "grade": "Grade (الصف)",
+      "gradePh": "Current grade",
+      "age": "Age (العمر)",
+      "agePh": "Age in years",
+      "studentHere": "Student in your school? (طالب في رجاءك؟)",
+      "school": "School/University (مدرسة / جامعة)",
+      "schoolPh": "Current school name",
+      "addSibling": "Add Sibling",
+      "removeSibling": "Remove",
+      "yes": "Yes (نعم)",
+      "no": "No (لا)"
+    },
+    "requirements": {
+      "title": "Required Documents (المستندات المطلوبة)",
+      "initial": {
+        "title": "For Initial Admission Stage (رياض الأطفال):",
+        "birthCert": "Original national ID birth certificate (شهادة الميلاد الرقم القومي - الأصل)",
+        "photos": "6 personal photos of the student (6 صور شخصية للطالب)",
+        "parentIds": "Copy of father's and mother's national ID (صورة من البطاقة الوالد و الوالدة)"
+      },
+      "transfer": {
+        "title": "For Transfer Student:",
+        "above": "All of the above documents plus the following (جميع الطلبات السابقة و الآتية):",
+        "transferRequest": "Transfer request from the previous school (طلب تحويل من المدرسة المحول منها)",
+        "transcript": "Transcript of previous years from educational administration (بيان نجاح بالأعوام السابقة لمراحل النقل من الإدارة التعليمية)",
+        "advancedTranscript": "Transcript of advanced level (بيان نجاح المستوى الرفيع)",
+        "grade6Cert": "Certificate of 6th grade (شهادة الصف السادس الابتدائي)",
+        "grade6Confirm": "Confirmation of 6th grade completion from the educational administration (بيان نجاح الصف السادس الابتدائي من الإدارة التعليمية)",
+        "middleCert": "Middle school certificate (شهادة الإعدادية)",
+        "middleConfirm": "Confirmation of middle school completion from the educational administration (بيان نجاح الإعدادية من الإدارة التعليمية)"
+      }
+    }
+  }
+}

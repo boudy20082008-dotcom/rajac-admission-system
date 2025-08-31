@@ -1,0 +1,10 @@
+project_id = "amswxkulhgtrmowocmtu"
+
+[functions.create-payment-intent]
+verify_jwt = false
+
+[functions.payment-callback]
+verify_jwt = false
+
+[functions.book-test-slot]
+verify_jwt = false
